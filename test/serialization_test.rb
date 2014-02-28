@@ -86,6 +86,13 @@ class RenderJsonTest < ActionController::TestCase
   class TestController < ActionController::Base
     protect_from_forgery
 
+    # Workaround for `ActionController::InvalidCrossOriginRequest` error
+    # after upgrading dependency on rails to 4.1.0.rc1
+    skip_before_action :verify_authenticity_token, only: [
+      :render_json_hello_world_with_callback,
+      :render_json_with_custom_content_type
+    ]
+
     serialization_scope :current_user
     attr_reader :current_user
 
@@ -190,8 +197,8 @@ class RenderJsonTest < ActionController::TestCase
       render json: [], serializer: CustomArraySerializer
     end
 
-
   private
+
     def default_serializer_options
       defaults = {}
       defaults.merge!(check_defaults: true) if params[:check_defaults]
